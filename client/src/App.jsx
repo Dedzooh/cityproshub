@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000"; // <- added
+
 // --- Home Page Component ---
 function Home() {
   const [providers, setProviders] = useState([]);
@@ -12,7 +14,7 @@ function Home() {
   const fetchProviders = async (filters = {}) => {
     try {
       const query = new URLSearchParams(filters).toString();
-      const res = await axios.get(`http://localhost:5000/api/providers?${query}`);
+      const res = await axios.get(`${API_BASE}/api/providers?${query}`); // <- uses API_BASE
       setProviders(res.data);
     } catch (err) {
       console.error(err);
@@ -87,26 +89,28 @@ function Home() {
                 alt={p.businessName}
                 className="object-cover w-full h-40 mb-3 rounded-lg"
               />
-             <h4 className="flex items-center gap-1 text-lg font-semibold text-green-700">
-  {p.businessName}
-  {p.verified && (
-    <span className="text-sm text-blue-500" title="Verified Provider">✅</span>
-  )}
-</h4>
+              <h4 className="flex items-center gap-1 text-lg font-semibold text-green-700">
+                {p.businessName}
+                {p.verified && (
+                  <span className="text-sm text-blue-500" title="Verified Provider">
+                    ✅
+                  </span>
+                )}
+              </h4>
 
               <p className="mb-1 text-sm text-gray-600">
                 {p.city} • {p.category}
               </p>
               <p className="mb-3 text-sm text-gray-700">{p.description}</p>
-<a
-  href={`https://wa.me/${p.whatsapp}?text=${encodeURIComponent(
-    `Hi ${p.businessName}, I found you on CityProsHub and would like to know more about your ${p.category} services in ${p.city}.`
-  )}`}
-  target="_blank"
-  className="inline-block px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
->
-  Chat on WhatsApp
-</a>
+              <a
+                href={`https://wa.me/${p.whatsapp}?text=${encodeURIComponent(
+                  `Hi ${p.businessName}, I found you on CityProsHub and would like to know more about your ${p.category} services in ${p.city}.`
+                )}`}
+                target="_blank"
+                className="inline-block px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
+              >
+                Chat on WhatsApp
+              </a>
             </div>
           ))}
         </div>
@@ -114,7 +118,6 @@ function Home() {
     </div>
   );
 }
-
 
 // --- Add Listing Page Component ---
 function AddListing() {
@@ -135,7 +138,7 @@ function AddListing() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/providers", formData);
+      await axios.post(`${API_BASE}/api/providers`, formData); // <- uses API_BASE
       setMessage("✅ Provider added successfully!");
       setFormData({
         name: "",
