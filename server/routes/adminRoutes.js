@@ -17,5 +17,23 @@ router.put("/verify/:id", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+// Toggle "featured" status
+router.put("/feature/:id", async (req, res) => {
+  try {
+    const provider = await Provider.findById(req.params.id);
+    if (!provider) return res.status(404).json({ message: "Provider not found" });
+
+    provider.featured = !provider.featured;
+    await provider.save();
+
+    res.json({
+      message: `Provider ${provider.featured ? "marked as featured" : "unfeatured"}`,
+      featured: provider.featured,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 export default router;
