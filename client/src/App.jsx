@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import AdminDashboard from "./page/AdminDashboard";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000"; // <- added
 
@@ -76,7 +77,9 @@ function Home() {
         </h3>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {providers.map((p) => (
+{providers
+  .sort((a, b) => (b.featured === true) - (a.featured === true))
+  .map((p) => (
             <div
               key={p._id}
               className="p-5 transition bg-white border shadow rounded-xl hover:shadow-lg"
@@ -86,9 +89,16 @@ function Home() {
                   p.imageUrl ||
                   "https://via.placeholder.com/400x200?text=CityProsHub"
                 }
+                
                 alt={p.businessName}
                 className="object-cover w-full h-40 mb-3 rounded-lg"
               />
+              {p.featured && (
+  <div className="px-2 py-1 mb-2 text-xs font-semibold text-white bg-yellow-400 rounded-full w-fit">
+    ⭐ Featured
+  </div>
+)}
+
               <h4 className="flex items-center gap-1 text-lg font-semibold text-green-700">
                 {p.businessName}
                 {p.verified && (
@@ -228,6 +238,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/add" element={<AddListing />} />
+  <Route path="/admin" element={<AdminDashboard />} /> {/* ✅ New */}
       </Routes>
 
       {/* Footer */}
