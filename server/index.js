@@ -15,10 +15,11 @@ connectDB();
 
 // ✅ Allowed origins (frontend URLs)
 const allowedOrigins = [
-  "http://localhost:5173",           // Local Vite
-  "http://localhost:3000",           // React dev (optional)
-  "https://cityproshub.vercel.app",  // Vercel frontend
-  "https://www.cityproshub.co.ke",   // Custom domain (future)
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://cityproshub.vercel.app",
+  "https://www.cityproshub.vercel.app",
+  "https://www.cityproshub.co.ke"
 ];
 
 // ✅ Enable CORS (with error-safe handling)
