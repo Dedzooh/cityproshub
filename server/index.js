@@ -13,27 +13,30 @@ const app = express();
 // ✅ Connect to MongoDB
 connectDB();
 
-// ✅ Allowed origins (frontend URLs)
+// ✅ Allowed frontend origins
 const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://cityproshub.vercel.app",
-  "https://www.cityproshub.vercel.app",
-  "https://www.cityproshub.co.ke"
+  "http://localhost:5173", // local Vite dev
+  "http://localhost:3000", // local React dev
+  "https://cityproshub.vercel.app", // production frontend
+  "https://www.cityproshub.vercel.app", // alt domain
+  "https://cityproshub.co.ke", // custom domain (future)
+  "https://cityproshub.onrender.com" // your backend (for internal checks)
 ];
 
-// ✅ Enable CORS (with error-safe handling)
+// ✅ Enable detailed CORS logging and safe handling
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow server-to-server or tools (like Postman) without origin
+      console.log("🌍 Incoming request from origin:", origin);
+      // Allow server-to-server or Postman (no origin header)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
+        console.log("✅ CORS allowed for:", origin);
         callback(null, true);
       } else {
-        console.warn(`❌ Blocked by CORS: ${origin}`);
-        callback(new Error("Not allowed by CORS"));
+        console.warn("🚫 CORS blocked for:", origin);
+        callback(new Error(`Not allowed by CORS: ${origin}`));
       }
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -41,31 +44,35 @@ app.use(
   })
 );
 
-// ✅ Handle preflight OPTIONS requests (important for browsers)
+// ✅ Handle preflight OPTIONS requests
 app.options("*", cors());
 
 // ✅ Middleware
 app.use(express.json({ limit: "10mb" }));
 
-// ✅ Log to confirm startup
 console.log("✅ All middlewares loaded");
 
-// ✅ API Routes
+// ✅ Routes
 app.use("/api/providers", providerRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/mpesa", mpesaRoutes);
 app.use("/api/auth", authRoutes);
 
-// ✅ Health check route (Render uses this)
-app.get("/", (req, res) => res.send("🌍 CityProsHub API is running fine ✅"));
+// ✅ Health check route (for Render uptime ping)
+app.get("/", (req, res) => {
+  res.send("🌍 CityProsHub API is running fine ✅");
+});
 
-// ✅ Global error handler (prevents blank responses on CORS rejection)
+// ✅ Global Error Handler (prevents CORS from crashing the API)
 app.use((err, req, res, next) => {
-  console.error("🚨 Server Error:", err.message);
+  console.error("🚨 Error caught in global handler:", err.message);
+  if (err.message && err.message.includes("CORS")) {
+    return res.status(403).json({ error: "CORS policy: Access denied" });
+  }
   res.status(500).json({ error: err.message || "Internal Server Error" });
 });
 
-// ✅ Start server
+// ✅ Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Server running on port ${PORT}`);

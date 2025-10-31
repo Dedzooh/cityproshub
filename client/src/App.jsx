@@ -7,18 +7,33 @@ import AdminDashboard from "./page/AdminDashboard";
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 // 🧭 Enhanced Navbar with new blue-purple gradient theme
+// 🧭 Enhanced Navbar with logo + flag + gradient
 function Navbar() {
   return (
     <header className="fixed z-50 w-full max-w-4xl px-4 py-3 transform -translate-x-1/2 border shadow-xl top-4 left-1/2 sm:px-6 rounded-2xl backdrop-blur-md bg-white/95 border-white/20">
       <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
         <Link
           to="/"
-          className="text-xl font-black tracking-wide text-transparent transition-transform duration-300 sm:text-2xl bg-linear-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text hover:scale-105"
+          className="flex items-center space-x-2 transition-transform duration-300 hover:scale-105"
           aria-label="CityProsHub Home"
         >
-          CityProsHub<span className="ml-1 text-xs sm:text-sm text-slate-500 animate-pulse">🇰🇪</span>
+          {/* 3D Handshake Logo */}
+          <img
+            src="/logo.png"
+            alt="CityProsHub Logo"
+            className="w-8 h-8 rounded-full shadow-md sm:w-10 sm:h-10"
+          />
+          
+          {/* Brand text and flag */}
+          <div className="flex items-center space-x-1">
+            <span className="text-xl font-black tracking-wide text-transparent sm:text-2xl bg-linear-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text">
+              CityProsHub
+            </span>
+            <span className="text-xs sm:text-sm animate-pulse">🇰🇪</span>
+          </div>
         </Link>
 
+        {/* Navigation buttons */}
         <nav className="flex flex-wrap items-center justify-end w-full gap-2 sm:gap-4 sm:w-auto" role="navigation">
           <Link
             to="/add"
@@ -39,6 +54,7 @@ function Navbar() {
     </header>
   );
 }
+
 
 // 🏡 Enhanced Home Page with blue-purple gradient theme for trust & professionalism
 function Home() {
@@ -189,16 +205,18 @@ function Home() {
                   }`}
                   role="article"
                 >
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={p.imageUrl || "https://images.unsplash.com/photo-1558618047-3c8c76ca7d4e?auto=format&fit=crop&w=400&h=250&q=80"}
-                      alt={`${p.businessName} - ${p.category} services in ${p.city}`}
-                      className="object-cover w-full h-40 transition-transform duration-700 sm:h-48 group-hover/card:scale-110"
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/400x250?text=Pro+Hub+KE";
-                      }}
-                    />
+<div className="relative overflow-hidden">
+  <img
+  src={p.imageUrl || "/favicon.png"}
+  alt={p.businessName || "CityProsHub Provider"}
+  className="object-cover w-full h-40 transition-transform duration-700 sm:h-48 group-hover/card:scale-110"
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = "/favicon.png";
+  }}
+/>
+
+
                     <div className="absolute transition-opacity duration-300 opacity-0 top-2 right-2 group-hover/card:opacity-100">
                       <span className="px-2 py-1 text-xs font-semibold text-white rounded-full bg-black/70">Verified</span>
                     </div>
