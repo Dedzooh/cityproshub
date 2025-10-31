@@ -6,7 +6,6 @@ import AdminDashboard from "./page/AdminDashboard";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-// 🧭 Enhanced Navbar with new blue-purple gradient theme
 // 🧭 Enhanced Navbar with logo + flag + gradient
 function Navbar() {
   return (
@@ -64,6 +63,8 @@ function Home() {
   const [city, setCity] = useState("");
   const [error, setError] = useState("");
   const [bgIndex, setBgIndex] = useState(0);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   // ✅ Hero images remain the same, but overlay adjusted for new theme
   const heroImages = [
@@ -82,12 +83,40 @@ function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  const debouncedFetch = useCallback(async (filters = {}) => {
+const debouncedFetch = useCallback(
+  async (filters = {}, append = false, currentPage = 1) => {
     setLoading(true);
     try {
-      const query = new URLSearchParams(filters).toString();
+      const query = new URLSearchParams({
+        ...filters,
+        page: currentPage,
+        limit: 8,
+      }).toString();
+
       const res = await axios.get(`${API_BASE}/api/providers?${query}`, { timeout: 10000 });
-      setProviders(res.data);
+
+      // Handle both pagination and total count from backend
+      const data = Array.isArray(res.data)
+        ? res.data
+        : res.data.providers || [];
+
+      const total = res.data.total || data.length;
+
+      setProviders((prev) => {
+        const newProviders = append ? [...prev, ...data] : data;
+        const newLength = append ? prev.length + data.length : data.length;
+        if (data.length < 8 || newLength >= total) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+        }
+        return newProviders;
+      });
+
+      if (append) {
+  window.scrollTo({ top: document.body.scrollHeight - 500, behavior: "smooth" });
+}
+
       setError("");
     } catch (err) {
       console.error("❌ Fetch error:", err.message);
@@ -95,15 +124,29 @@ function Home() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  },
+  []
+);
 
-  useEffect(() => {
-    debouncedFetch();
-  }, [debouncedFetch]);
+useEffect(() => {
+  debouncedFetch({}, false, 1);
+}, [debouncedFetch]);
+
 
   const handleSearch = (e) => {
     e.preventDefault();
-    debouncedFetch({ category: category.trim(), city: city.trim() });
+    setPage(1);
+    setProviders([]);
+    setHasMore(true);
+    debouncedFetch({ category: category.trim(), city: city.trim() }, false, 1);
+  };
+
+  const loadMore = () => {
+    setPage((prev) => {
+      const nextPage = prev + 1;
+      debouncedFetch({ category: category.trim(), city: city.trim() }, true, nextPage);
+      return nextPage;
+    });
   };
 
   const SkeletonCard = () => (
@@ -215,9 +258,7 @@ function Home() {
     e.target.src = "/fallback.jpg";
   }}
 />
-
-
-                    <div className="absolute transition-opacity duration-300 opacity-0 top-2 right-2 group-hover/card:opacity-100">
+     <div className="absolute transition-opacity duration-300 opacity-0 top-2 right-2 group-hover/card:opacity-100">
                       <span className="px-2 py-1 text-xs font-semibold text-white rounded-full bg-black/70">Verified</span>
                     </div>
                   </div>
@@ -253,6 +294,16 @@ function Home() {
             </div>
           </>
         )}
+        {hasMore && !loading && (
+  <div className="flex justify-center mt-12">
+    <button
+      onClick={loadMore}
+      className="px-6 py-3 font-semibold text-white transition-all duration-300 shadow-lg sm:px-8 sm:py-4 bg-linear-to-r from-blue-600 via-indigo-500 to-purple-500 rounded-2xl hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+    >
+      Load More
+    </button>
+  </div>
+)}
       </section>
     </div>
   );
