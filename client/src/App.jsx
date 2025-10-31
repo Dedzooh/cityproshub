@@ -207,12 +207,12 @@ function Home() {
                 >
 <div className="relative overflow-hidden">
   <img
-  src={p.imageUrl || "/favicon.png"}
+  src={p.imageUrl || "/fallback.jpg"}
   alt={p.businessName || "CityProsHub Provider"}
   className="object-cover w-full h-40 transition-transform duration-700 sm:h-48 group-hover/card:scale-110"
   onError={(e) => {
     e.target.onerror = null;
-    e.target.src = "/favicon.png";
+    e.target.src = "/fallback.jpg";
   }}
 />
 
